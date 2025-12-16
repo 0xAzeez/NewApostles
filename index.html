@@ -506,11 +506,15 @@
             eligibilityScreen.style.display = 'flex';
 
             try {
+                // Ensure SDK is ready (should be, but good to double check or re-fetch if needed)
+                // In v2 SDK, context is a property.
                 const context = sdk.context;
+                log("Context loaded: " + JSON.stringify(context));
 
                 // 2. Run Checks
-                if (context.user && context.user.fid) {
+                if (context && context.user && context.user.fid) {
                     state.user = context.user;
+                    log(`User detected: ${state.user.username} (FID: ${state.user.fid})`);
 
                     // Parallel Checks
                     const [following, scoreVal] = await Promise.all([
@@ -523,6 +527,7 @@
                     state.scoreGood = parseFloat(scoreVal) > 0.5;
 
                 } else {
+                    log("No user in context. Falling back to Demo Mode.");
                     // Demo Mode
                     console.log("Demo Mode");
                     await new Promise(resolve => setTimeout(resolve, 1000));
