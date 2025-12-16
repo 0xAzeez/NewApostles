@@ -160,7 +160,9 @@
         </div>
 
         <!-- Hidden context for debugging -->
-        <div id="debug-context" style="display: none;"></div>
+        <div id="debug-context"
+            style="display: block; color: #0f0; background: rgba(0,0,0,0.9); padding: 10px; position: fixed; bottom: 0; left: 0; right: 0; max-height: 200px; overflow-y: auto; z-index: 9999; font-family: monospace; font-size: 10px; border-top: 1px solid #0f0;">
+            DEBUG LOG:</div>
     </div>
 
     <!-- Whitelisted Success Screen -->
@@ -215,6 +217,18 @@
         let supabase = null;
         if (SUPABASE_URL !== 'PASTE_YOUR_SUPABASE_URL_HERE') {
             supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+
+        // Debug Logger
+        function log(msg) {
+            const debugEl = document.getElementById('debug-context');
+            if (debugEl) {
+                const line = document.createElement('div');
+                line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+                debugEl.appendChild(line);
+                debugEl.scrollTop = debugEl.scrollHeight;
+            }
+            console.log(msg);
         }
 
         // State
@@ -298,6 +312,7 @@
 
         // Real API Checks
         async function checkFollowStatus(userFid) {
+            log(`Checking follow status for FID: ${userFid}`);
             if (NEYNAR_API_KEY === 'PASTE_YOUR_NEYNAR_API_KEY_HERE') {
                 console.warn("Missing API Key. Returning mock success.");
                 return new Promise(resolve => setTimeout(() => resolve(true), 1000));
@@ -305,7 +320,10 @@
 
             try {
                 const targetFid = await getFidForUsername(TARGET_USERNAME);
-                if (!targetFid) return false;
+                if (!targetFid) {
+                    log("Target FID not found for " + TARGET_USERNAME);
+                    return false;
+                }
 
                 const url = `https://api.neynar.com/v2/farcaster/user/bulk?fids=${targetFid}&viewer_fid=${userFid}`;
                 const response = await fetch(url, {
@@ -315,20 +333,28 @@
                     }
                 });
 
+                if (!response.ok) {
+                    log(`Follow API Error: ${response.status}`);
+                    return false;
+                }
+
                 const data = await response.json();
                 if (data.users && data.users.length > 0) {
-                    // Check if the viewer (userFid) is following the target (targetFid)
-                    // The API returns the target user object, with viewer_context relative to viewer_fid
-                    return data.users[0].viewer_context.following;
+                    const isFollowing = data.users[0].viewer_context.following;
+                    log(`Follow status: ${isFollowing}`);
+                    return isFollowing;
                 }
+                log("Follow check: No user data returned");
                 return false;
             } catch (error) {
+                log(`Follow check failed: ${error.message}`);
                 console.error("Follow check failed:", error);
                 return false;
             }
         }
 
         async function checkNeynarScore(userFid) {
+            log(`Checking score for FID: ${userFid}`);
             if (NEYNAR_API_KEY === 'PASTE_YOUR_NEYNAR_API_KEY_HERE') {
                 console.warn("Missing API Key. Returning mock success.");
                 return new Promise(resolve => setTimeout(() => resolve(0.85), 1500));
@@ -343,18 +369,22 @@
                     }
                 });
 
+                if (!response.ok) {
+                    log(`Score API Error: ${response.status}`);
+                    return 0;
+                }
+
                 const data = await response.json();
                 if (data.users && data.users.length > 0) {
                     const user = data.users[0];
-                    // Check for neynar_user_score (experimental field, might vary)
-                    // Fallback to checking if they have a high enough follower count as proxy if score missing?
-                    // For now, let's assume the field exists or check power_badge
-                    const score = user.experimental?.neynar_user_score || 0;
-                    console.log("User Score:", score);
+                    const score = user.experimental?.neynar_user_score || user.score || 0;
+                    log(`User Score: ${score}`);
                     return score;
                 }
+                log("Score check: No user data returned");
                 return 0;
             } catch (error) {
+                log(`Score check failed: ${error.message}`);
                 console.error("Score check failed:", error);
                 return 0;
             }
