@@ -491,8 +491,8 @@
                 // In frame-sdk, we just call ready()
                 sdk.actions.ready();
 
-                // 1. Splash Screen (2.5s)
-                await new Promise(resolve => setTimeout(resolve, 2500));
+                // 1. Splash Screen (1.5s)
+                await new Promise(resolve => setTimeout(resolve, 1500));
 
             } catch (error) {
                 console.error("Init Error:", error);
@@ -508,7 +508,7 @@
                             landingScreen.style.display = 'flex';
                         }, 1000);
                     }
-                }, 2500);
+                }, 1500);
             }
         }
 
