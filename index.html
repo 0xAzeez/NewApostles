@@ -174,7 +174,7 @@
     </div>
 
     <script type="module">
-        import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+        import sdk from 'https://esm.sh/@farcaster/frame-sdk';
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
         // UI Elements
@@ -482,6 +482,10 @@
         // Initialize
         async function initApp() {
             try {
+                // Initialize SDK background
+                // In frame-sdk, we just call ready()
+                sdk.actions.ready();
+
                 // 1. Splash Screen (2.5s)
                 await new Promise(resolve => setTimeout(resolve, 2500));
 
@@ -492,11 +496,9 @@
                     landingScreen.style.display = 'flex';
                 }, 1000);
 
-                // Initialize SDK background
-                await sdk.actions.ready();
-
             } catch (error) {
                 console.error("Init Error:", error);
+                log("Init Error: " + error.message);
             }
         }
 
