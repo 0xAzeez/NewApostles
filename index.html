@@ -34,18 +34,6 @@
         <div class="splash-content">
             <img src="assets/header.png" alt="The Apostles" class="splash-image">
             <h1 class="splash-text">tHe AposTLeS</h1>
-            <button id="skip-splash"
-                style="margin-top: 20px; background: transparent; border: 1px solid #fff; color: #fff; padding: 10px 20px; opacity: 0; transition: opacity 1s; pointer-events: none;"
-                onclick="document.getElementById('splash-screen').style.display='none'; document.getElementById('landing-screen').style.display='flex';">SKIP</button>
-            <script>
-                setTimeout(() => {
-                    const skipBtn = document.getElementById('skip-splash');
-                    if (skipBtn) {
-                        skipBtn.style.opacity = '1';
-                        skipBtn.style.pointerEvents = 'auto';
-                    }
-                }, 3000);
-            </script>
         </div>
     </div>
 
