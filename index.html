@@ -510,7 +510,7 @@
             try {
                 // Ensure SDK is ready (should be, but good to double check or re-fetch if needed)
                 // In v2 SDK, context is a property.
-                const context = sdk.context;
+                const context = await sdk.context;
                 log("Context loaded: " + JSON.stringify(context));
 
                 // 2. Run Checks
