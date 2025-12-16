@@ -453,16 +453,21 @@
                             // 1. Splash Screen (2.5s)
                             await new Promise(resolve => setTimeout(resolve, 2500));
 
-                            // Transition Splash -> Landing
-                            splashScreen.style.opacity = '0';
-                            setTimeout(() => {
-                                splashScreen.style.display = 'none';
-                                landingScreen.style.display = 'flex';
-                            }, 1000);
-
                         } catch (error) {
                             console.error("Init Error:", error);
-                            log("Init Error: " + error.message);
+                            // log("Init Error: " + error.message); // log might not be defined if module failed
+                        } finally {
+                            // Always transition
+                            // Moved to finally block to ensure it happens even on error
+                            setTimeout(() => {
+                                if (splashScreen.style.display !== 'none') {
+                                    splashScreen.style.opacity = '0';
+                                    setTimeout(() => {
+                                        splashScreen.style.display = 'none';
+                                        landingScreen.style.display = 'flex';
+                                    }, 1000);
+                                }
+                            }, 2500);
                         }
                     }
 
@@ -669,6 +674,23 @@
                         }
                     });
 
+    </script>
+    <!-- Safety Timeout Script (Non-module) -->
+    <script>
+                    setTimeout(() => {
+                        const splash = document.getElementById('splash-screen');
+                        const landing = document.getElementById('landing-screen');
+                        if (splash && getComputedStyle(splash).display !== 'none') {
+                            console.warn("Safety timeout triggered: Forcing splash screen hide");
+                            splash.style.opacity = '0';
+                            setTimeout(() => {
+                                splash.style.display = 'none';
+                                if (landing && getComputedStyle(landing).display === 'none') {
+                                    landing.style.display = 'flex';
+                                }
+                            }, 1000);
+                        }
+                    }, 5000); // 5 seconds max for splash
     </script>
 </body>
 
