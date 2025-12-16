@@ -640,10 +640,11 @@
         // Share Action
         boxShare.addEventListener('click', () => {
             const text = "The Big Man looked at my browser history and decided to let me in anyway. 💀\n\nOfficially whitelisted by @jesus. Miracles do happen.\n\nCheck if you’re too cringe for salvation";
+            const embedUrl = "https://farcaster-mini-app.netlify.app";
+            const shareUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(embedUrl)}`;
 
             // Use openUrl for better compatibility if createCast fails or isn't supported in all contexts
-            // But createCast is standard for mini apps.
-            sdk.actions.createCast({ text, embeds: ['https://farcaster-mini-app.netlify.app'] });
+            sdk.actions.openUrl(shareUrl);
 
             // Optimistically set shared to true
             state.shared = true;
