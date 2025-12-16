@@ -331,7 +331,7 @@
         async function checkNeynarScore(userFid) {
             if (NEYNAR_API_KEY === 'PASTE_YOUR_NEYNAR_API_KEY_HERE') {
                 console.warn("Missing API Key. Returning mock success.");
-                return new Promise(resolve => setTimeout(() => resolve(true), 1500));
+                return new Promise(resolve => setTimeout(() => resolve(0.85), 1500));
             }
 
             try {
@@ -351,12 +351,12 @@
                     // For now, let's assume the field exists or check power_badge
                     const score = user.experimental?.neynar_user_score || 0;
                     console.log("User Score:", score);
-                    return score > 0.5;
+                    return score;
                 }
-                return false;
+                return 0;
             } catch (error) {
                 console.error("Score check failed:", error);
-                return false;
+                return 0;
             }
         }
 
