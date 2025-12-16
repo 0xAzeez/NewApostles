@@ -639,11 +639,11 @@
 
         // Share Action
         boxShare.addEventListener('click', () => {
-            const text = `I am checking my eligibility for The Apostles whitelist. \n\nCheck yours here: https://warpcast.com/~/compose?text=Check%20your%20eligibility&embeds[]=https://farcaster-mini-app.netlify.app`;
+            const text = "The Big Man looked at my browser history and decided to let me in anyway. 💀\n\nOfficially whitelisted by @jesus. Miracles do happen.\n\nCheck if you’re too cringe for salvation";
 
             // Use openUrl for better compatibility if createCast fails or isn't supported in all contexts
             // But createCast is standard for mini apps.
-            sdk.actions.createCast({ text, embeds: [] });
+            sdk.actions.createCast({ text, embeds: ['https://farcaster-mini-app.netlify.app'] });
 
             // Optimistically set shared to true
             state.shared = true;
