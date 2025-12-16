@@ -7,9 +7,9 @@
   "frame": {
     "version": "1",
     "name": "The Apostles",
-    "iconUrl": "https://your-domain.com/assets/icon.png",
-    "splashImageUrl": "https://your-domain.com/assets/header.png",
+    "iconUrl": "https://the-apostles.vercel.app/assets/icon.png",
+    "splashImageUrl": "https://the-apostles.vercel.app/assets/header.png",
     "splashBackgroundColor": "#000000",
-    "homeUrl": "https://your-domain.com"
+    "homeUrl": "https://the-apostles.vercel.app"
   }
 }
