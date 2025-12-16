@@ -508,10 +508,29 @@
             eligibilityScreen.style.display = 'flex';
 
             try {
-                // Ensure SDK is ready (should be, but good to double check or re-fetch if needed)
-                // In v2 SDK, context is a property.
-                const context = await sdk.context;
-                log("Context loaded: " + JSON.stringify(context));
+                // Probe sdk.context
+                log(`sdk.context type: ${typeof sdk.context}`);
+
+                let context = null;
+                // Poll for context (up to 5 attempts)
+                for (let i = 0; i < 5; i++) {
+                    // Check if it's a promise or direct object
+                    const rawContext = sdk.context;
+                    if (rawContext && typeof rawContext.then === 'function') {
+                        context = await rawContext;
+                    } else {
+                        context = rawContext;
+                    }
+
+                    if (context && context.user && context.user.fid) {
+                        log(`Context found on attempt ${i + 1}`);
+                        break;
+                    }
+                    log(`Attempt ${i + 1}: Context not ready. Waiting...`);
+                    await new Promise(r => setTimeout(r, 500));
+                }
+
+                log("Final Context: " + JSON.stringify(context));
 
                 // 2. Run Checks
                 if (context && context.user && context.user.fid) {
