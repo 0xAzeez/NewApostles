@@ -1,0 +1,15 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjI4NTUsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgxMjM0NTY3ODkwYWJjZGVmIn0",
+    "payload": "eyJkb21haW4iOiJ5b3VyLWRvbWFpbi5jb20ifQ",
+    "signature": "MHhhYmNkZWYxMjM0NTY3ODkw"
+  },
+  "frame": {
+    "version": "1",
+    "name": "The Apostles",
+    "iconUrl": "https://your-domain.com/assets/icon.png",
+    "splashImageUrl": "https://your-domain.com/assets/header.png",
+    "splashBackgroundColor": "#000000",
+    "homeUrl": "https://your-domain.com"
+  }
+}
