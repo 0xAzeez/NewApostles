@@ -159,10 +159,6 @@
             </div>
         </div>
 
-        <!-- Hidden context for debugging -->
-        <div id="debug-context"
-            style="display: block; color: #0f0; background: rgba(0,0,0,0.9); padding: 10px; position: fixed; bottom: 0; left: 0; right: 0; max-height: 200px; overflow-y: auto; z-index: 9999; font-family: monospace; font-size: 10px; border-top: 1px solid #0f0;">
-            DEBUG LOG:</div>
     </div>
 
     <!-- Whitelisted Success Screen -->
@@ -221,13 +217,6 @@
 
         // Debug Logger
         function log(msg) {
-            const debugEl = document.getElementById('debug-context');
-            if (debugEl) {
-                const line = document.createElement('div');
-                line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-                debugEl.appendChild(line);
-                debugEl.scrollTop = debugEl.scrollHeight;
-            }
             console.log(msg);
         }
 
