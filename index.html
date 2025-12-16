@@ -299,9 +299,9 @@
             try {
                 const response = await fetch(`https://fnames.farcaster.xyz/transfers/current?name=${username}`);
                 const data = await response.json();
-                if (data && data.transfer && data.transfer.id) {
-                    console.log(`Resolved @${username} to FID: ${data.transfer.id}`);
-                    return data.transfer.id;
+                if (data && data.transfer && data.transfer.to) {
+                    log(`Resolved @${username} to FID: ${data.transfer.to}`);
+                    return data.transfer.to;
                 }
                 throw new Error('FID not found');
             } catch (error) {
