@@ -104,8 +104,8 @@
                 <div class="profile-info">
                     <img id="userPfp" src="assets/icon.png" alt="Profile" class="profile-pfp">
                     <div class="profile-details">
-                        <div id="userUsername" class="profile-username">@Jesus</div>
-                        <div id="userFid" class="profile-fid">FID: 2855</div>
+                        <div id="userUsername" class="profile-username">Loading...</div>
+                        <div id="userFid" class="profile-fid">FID: ...</div>
                     </div>
                 </div>
                 <div class="profile-divider"></div>
@@ -515,6 +515,11 @@
                 if (context && context.user && context.user.fid) {
                     state.user = context.user;
                     log(`User detected: ${state.user.username} (FID: ${state.user.fid})`);
+
+                    // Update UI immediately with user info so it's ready even if checks fail
+                    if (userUsername) userUsername.textContent = `@${state.user.username}`;
+                    if (userFid) userFid.textContent = `FID: ${state.user.fid}`;
+                    if (userPfp) userPfp.src = state.user.pfpUrl || 'assets/icon.png';
 
                     // Parallel Checks
                     const [following, scoreVal] = await Promise.all([
