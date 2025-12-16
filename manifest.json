@@ -1,15 +1,15 @@
 {
   "accountAssociation": {
-    "header": "eyJmaWQiOjI4NTUsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgxMjM0NTY3ODkwYWJjZGVmIn0",
-    "payload": "eyJkb21haW4iOiJ5b3VyLWRvbWFpbi5jb20ifQ",
-    "signature": "MHhhYmNkZWYxMjM0NTY3ODkw"
+    "header": "eyJmaWQiOjI4NTUsInR5cGUiOiJhdXRoIiwia2V5IjoiMHhlZDQxNkRlMkQ5MkE4ZGYzNTdkOTQxQmNGNDVmODBBRjIwRjI4YTYyIn0",
+    "payload": "eyJkb21haW4iOiJuZXctYXBvc3RsZXMudmVyY2VsLmFwcCJ9",
+    "signature": "Y+4K9FmMykUL/ziAPTkkRG+KnDADRfY9cUhKkQ3PCM4nRNA8Hb3SrW1+++H0hbl3EJIB1TsWsNDfspeZixJNxxw="
   },
   "frame": {
     "version": "1",
     "name": "The Apostles",
-    "iconUrl": "https://the-apostles.vercel.app/assets/icon.png",
-    "splashImageUrl": "https://the-apostles.vercel.app/assets/header.png",
+    "iconUrl": "https://new-apostles.vercel.app/assets/icon.png",
+    "splashImageUrl": "https://new-apostles.vercel.app/assets/header.png",
     "splashBackgroundColor": "#000000",
-    "homeUrl": "https://the-apostles.vercel.app"
+    "homeUrl": "https://new-apostles.vercel.app"
   }
 }
