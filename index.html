@@ -462,8 +462,25 @@
             }
         }
 
+        async function checkIfWhitelisted(userFid) {
+            if (!supabase) return false;
+            try {
+                const { data, error } = await supabase
+                    .from('whitelist')
+                    .select('fid')
+                    .eq('fid', userFid)
+                    .maybeSingle();
 
-
+                if (error) {
+                    console.error("Whitelist check error:", error);
+                    return false;
+                }
+                return !!data; // True if record exists
+            } catch (e) {
+                console.error("Whitelist check failed:", e);
+                return false;
+            }
+        }
 
         function updateDashboardUI() {
             // 1. Profile
@@ -526,14 +543,26 @@
             }
 
             // 5. Main Button
-            if (state.following && scoreVal > 0.5 && state.shared) {
+            if (state.isWhitelisted) {
+                whitelistBtn.disabled = true;
+                whitelistBtn.textContent = 'ALREADY VERIFIED';
+                whitelistBtn.classList.add('success');
+                whitelistBtn.classList.add('enabled'); // Keep style but disabled interaction
+                refreshBtn.style.display = 'none'; // Hide refresh if done
+            } else if (state.following && scoreVal > 0.5 && state.shared) {
                 whitelistBtn.disabled = false;
+                whitelistBtn.textContent = 'COMPLETE VERIFICATION';
                 whitelistBtn.classList.add('enabled');
+                whitelistBtn.classList.remove('success');
                 refreshBtn.classList.add('success');
+                refreshBtn.style.display = 'flex';
             } else {
                 whitelistBtn.disabled = true;
+                whitelistBtn.textContent = 'COMPLETE VERIFICATION';
                 whitelistBtn.classList.remove('enabled');
+                whitelistBtn.classList.remove('success');
                 refreshBtn.classList.remove('success');
+                refreshBtn.style.display = 'flex';
             }
         }
 
@@ -606,14 +635,16 @@
                     if (userPfp) userPfp.src = state.user.pfpUrl || 'assets/icon.png';
 
                     // Parallel Checks
-                    const [following, neynarData] = await Promise.all([
+                    const [following, neynarData, isWhitelisted] = await Promise.all([
                         checkFollowStatus(context.user.fid),
-                        checkNeynarScore(context.user.fid)
+                        checkNeynarScore(context.user.fid),
+                        checkIfWhitelisted(context.user.fid)
                     ]);
 
                     state.following = following;
                     state.scoreVal = neynarData.score;
                     state.scoreGood = parseFloat(neynarData.score) > 0.5;
+                    state.isWhitelisted = isWhitelisted;
 
                     // Merge rich user data from Neynar (contains wallet/verifications)
                     if (neynarData.user) {
@@ -630,6 +661,7 @@
                     state.following = await checkFollowStatus(0);
                     state.scoreVal = await checkNeynarScore(0);
                     state.scoreGood = parseFloat(state.scoreVal) > 0.5;
+                    state.isWhitelisted = false;
 
                     // Mock User for Demo
                     state.user = {
@@ -660,6 +692,7 @@
                 state.following = false;
                 state.scoreGood = false;
                 state.scoreVal = "0.00";
+                state.isWhitelisted = false;
                 updateEligibilityUI(checkScoreEl, false);
                 updateEligibilityUI(checkFollowEl, false);
                 setTimeout(() => {
