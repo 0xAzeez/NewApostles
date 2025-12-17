@@ -508,7 +508,7 @@
             } else {
                 boxScore.classList.add('failure');
                 boxScore.classList.remove('success');
-                scoreStatus.textContent = '{ x }';
+                scoreStatus.innerHTML = `${scoreVal} <span style="color:#FF0000">x</span>`;
             }
 
             // 3. Follow Box
