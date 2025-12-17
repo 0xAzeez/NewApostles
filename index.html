@@ -788,8 +788,25 @@
 
         // JOIN WHITELIST button
         const btnJoinWhitelist = document.getElementById('btn-join-whitelist');
-        // Debounce join click to prevent double-firing
-        btnJoinWhitelist.addEventListener('click', debounce(startEligibilityChecks, 500));
+
+        let isCheckingEligibility = false;
+
+        btnJoinWhitelist.addEventListener('click', () => {
+            if (isCheckingEligibility) return;
+            isCheckingEligibility = true;
+
+            // Visual feedback
+            btnJoinWhitelist.textContent = "LOADING...";
+            btnJoinWhitelist.style.opacity = "0.7";
+
+            startEligibilityChecks().finally(() => {
+                // Reset flag if we ever come back here (e.g. error that didn't transition)
+                // Note: startEligibilityChecks transitions away, so this might not be visible
+                isCheckingEligibility = false;
+                btnJoinWhitelist.textContent = "JOIN WHITELIST";
+                btnJoinWhitelist.style.opacity = "1";
+            });
+        });
 
         // Follow Action
         btnFollowAction.addEventListener('click', () => {
