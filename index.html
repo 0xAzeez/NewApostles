@@ -462,6 +462,55 @@
             }
         }
 
+        async function checkShareStatus(userFid) {
+            const cacheKey = `share_${userFid}`;
+            const cached = getCache(cacheKey);
+            if (cached) {
+                log(`[Cache] Share status: ${cached}`);
+                return cached;
+            }
+
+            log(`Checking share status for FID: ${userFid}`);
+            if (NEYNAR_API_KEY === 'PASTE_YOUR_NEYNAR_API_KEY_HERE') {
+                console.warn("Missing API Key. Returning mock success.");
+                return new Promise(resolve => setTimeout(() => resolve(true), 1000));
+            }
+
+            try {
+                // Check recent casts for the specific text
+                const url = `https://api.neynar.com/v2/farcaster/feed/user/casts?fid=${userFid}&limit=10`;
+                const response = await fetchWithRetry(url, {
+                    headers: {
+                        'accept': 'application/json',
+                        'api_key': NEYNAR_API_KEY
+                    }
+                });
+
+                if (!response.ok) {
+                    log(`Share API Error: ${response.status}`);
+                    return false;
+                }
+
+                const data = await response.json();
+                const casts = data.casts || [];
+
+                // Look for the specific text
+                const targetText = "Officially whitelisted by @jesus";
+                const hasShared = casts.some(cast => cast.text && cast.text.includes(targetText));
+
+                log(`Share status: ${hasShared}`);
+                if (hasShared) {
+                    setCache(cacheKey, true);
+                }
+                return hasShared;
+
+            } catch (error) {
+                log(`Share check failed: ${error.message}`);
+                console.error("Share check failed:", error);
+                return false;
+            }
+        }
+
         async function checkIfWhitelisted(userFid) {
             if (!supabase) return false;
             try {
@@ -635,16 +684,18 @@
                     if (userPfp) userPfp.src = state.user.pfpUrl || 'assets/icon.png';
 
                     // Parallel Checks
-                    const [following, neynarData, isWhitelisted] = await Promise.all([
+                    const [following, neynarData, isWhitelisted, hasShared] = await Promise.all([
                         checkFollowStatus(context.user.fid),
                         checkNeynarScore(context.user.fid),
-                        checkIfWhitelisted(context.user.fid)
+                        checkIfWhitelisted(context.user.fid),
+                        checkShareStatus(context.user.fid)
                     ]);
 
                     state.following = following;
                     state.scoreVal = neynarData.score;
                     state.scoreGood = parseFloat(neynarData.score) > 0.5;
                     state.isWhitelisted = isWhitelisted;
+                    state.shared = hasShared;
 
                     // Merge rich user data from Neynar (contains wallet/verifications)
                     if (neynarData.user) {
@@ -662,6 +713,7 @@
                     state.scoreVal = await checkNeynarScore(0);
                     state.scoreGood = parseFloat(state.scoreVal) > 0.5;
                     state.isWhitelisted = false;
+                    state.shared = false;
 
                     // Mock User for Demo
                     state.user = {
@@ -693,6 +745,7 @@
                 state.scoreGood = false;
                 state.scoreVal = "0.00";
                 state.isWhitelisted = false;
+                state.shared = false;
                 updateEligibilityUI(checkScoreEl, false);
                 updateEligibilityUI(checkFollowEl, false);
                 setTimeout(() => {
@@ -738,9 +791,9 @@
             // Use openUrl for better compatibility if createCast fails or isn't supported in all contexts
             sdk.actions.openUrl(shareUrl);
 
-            // Optimistically set shared to true
-            state.shared = true;
-            updateDashboardUI();
+            // Removed optimistic update - user must refresh to verify
+            // state.shared = true;
+            // updateDashboardUI();
         });
 
         // Refresh Action
@@ -756,15 +809,18 @@
                 // Let's clear cache for this user to ensure fresh data
                 localStorage.removeItem(`follow_${state.user.fid}_${TARGET_USERNAME}`);
                 localStorage.removeItem(`score_${state.user.fid}`);
+                localStorage.removeItem(`share_${state.user.fid}`);
 
-                const [following, neynarData] = await Promise.all([
+                const [following, neynarData, hasShared] = await Promise.all([
                     checkFollowStatus(state.user.fid),
-                    checkNeynarScore(state.user.fid)
+                    checkNeynarScore(state.user.fid),
+                    checkShareStatus(state.user.fid)
                 ]);
 
                 state.following = following;
                 state.scoreVal = neynarData.score;
                 state.scoreGood = parseFloat(neynarData.score) > 0.5;
+                state.shared = hasShared;
 
                 updateDashboardUI();
             } catch (e) {
