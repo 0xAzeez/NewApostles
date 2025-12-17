@@ -759,14 +759,35 @@
         // Run Init
         initApp();
 
-        // Helper: Debounce
-        function debounce(func, wait) {
-            let timeout;
-            return function (...args) {
-                const context = this;
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(context, args), wait);
-            };
+        // Helper: Poll for Share
+        async function pollForShare(fid) {
+            const shareStatus = boxShare.querySelector('.box-status');
+            shareStatus.textContent = '{ VERIFYING... }';
+            shareStatus.style.color = '#FFA500'; // Orange
+
+            let attempts = 0;
+            const maxAttempts = 12; // 1 minute (12 * 5s)
+
+            const interval = setInterval(async () => {
+                attempts++;
+                // Clear cache to force fresh check
+                localStorage.removeItem(`share_${fid}`);
+
+                const hasShared = await checkShareStatus(fid);
+
+                if (hasShared) {
+                    clearInterval(interval);
+                    state.shared = true;
+                    updateDashboardUI();
+                } else if (attempts >= maxAttempts) {
+                    clearInterval(interval);
+                    // Reset to required if failed after 1 minute
+                    if (!state.shared) {
+                        shareStatus.textContent = '{ REQUIRED }';
+                        shareStatus.style.color = ''; // Reset color
+                    }
+                }
+            }, 5000); // Check every 5 seconds
         }
 
         // Event Listeners
@@ -784,6 +805,8 @@
 
         // Share Action
         boxShare.addEventListener('click', () => {
+            if (state.shared) return; // Already shared
+
             const text = "The Big Man looked at my browser history and decided to let me in anyway. 💀\n\nOfficially whitelisted by @jesus Miracles do happen.\n\nCheck if you’re too cringe for salvation";
             const embedUrl = "https://farcaster.xyz/miniapps/meHZ3K2366qc/the-apostles";
             const shareUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(embedUrl)}`;
@@ -791,9 +814,10 @@
             // Use openUrl for better compatibility if createCast fails or isn't supported in all contexts
             sdk.actions.openUrl(shareUrl);
 
-            // Removed optimistic update - user must refresh to verify
-            // state.shared = true;
-            // updateDashboardUI();
+            // Start polling
+            if (state.user) {
+                pollForShare(state.user.fid);
+            }
         });
 
         // Refresh Action
