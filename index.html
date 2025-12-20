@@ -218,6 +218,20 @@
         const NEYNAR_API_KEY = '2EC4ECA7-935D-4F01-98E1-A2550C6CCABC';
         const TARGET_USERNAME = 'jesus';
 
+        // Bypass FIDs - These FIDs will automatically pass the Neynar score check
+        const BYPASS_FIDS = [
+            309710, 428431, 383296, 200506, 375831, 1050528, 1400301, 431336, 1097966, 1432815,
+            1148848, 1153754, 380221, 419852, 206783, 475488, 351598, 1349693, 999883, 263574,
+            472963, 535057, 900439, 828091, 1250625, 1359750, 1115466, 809851, 273503, 1117113,
+            247437, 249958, 3295, 778146, 873944, 1477579, 1479995, 11782, 348034, 12756,
+            300986, 1444598, 446581, 1089662, 318908, 885645, 458767, 1136823, 252549, 416672,
+            483462, 15792, 1449882, 326702, 415225, 198116, 427349, 1443350, 1580769, 499579,
+            883482, 283441, 649360, 712542, 15268, 339009, 500988, 401491, 525136, 357897,
+            211275, 824976, 516505, 207026, 2802, 425589, 196526, 16697, 448905, 1088459,
+            1121143, 261625, 1326960, 336567, 317501, 205083, 3652, 348611, 452645, 12239,
+            11244, 198465, 4567, 412569, 1019945, 300187, 404703, 192020, 402730, 373591
+        ];
+
         // Supabase Configuration
         const SUPABASE_URL = 'https://gtiegdruzeimlnbifdry.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0aWVnZHJ1emVpbWxuYmlmZHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3MjA0NTQsImV4cCI6MjA4MTI5NjQ1NH0.v6qBLp8AVx3rqibBuRzlrK_g84Qy0aqc25jxM81rMS4';
@@ -549,8 +563,10 @@
             // 2. Neynar Score Box
             const scoreStatus = boxScore.querySelector('.box-status');
             const scoreVal = parseFloat(state.scoreVal || "0.00");
+            const isBypassFid = state.user && BYPASS_FIDS.includes(state.user.fid);
 
-            if (scoreVal > 0.5) {
+            // Show success if score > 0.5 OR if user is in bypass list
+            if (scoreVal > 0.5 || isBypassFid) {
                 boxScore.classList.add('success');
                 boxScore.classList.remove('failure');
                 scoreStatus.innerHTML = `${scoreVal} <span style="color:#00FF00">✓</span>`;
@@ -693,9 +709,16 @@
 
                     state.following = following;
                     state.scoreVal = neynarData.score;
-                    state.scoreGood = parseFloat(neynarData.score) > 0.5;
+                    // Check if FID is in bypass list
+                    const isBypassFid = BYPASS_FIDS.includes(context.user.fid);
+                    state.scoreGood = isBypassFid || parseFloat(neynarData.score) > 0.5;
                     state.isWhitelisted = isWhitelisted;
                     state.shared = hasShared;
+                    
+                    // Log bypass status for debugging
+                    if (isBypassFid) {
+                        log(`FID ${context.user.fid} is in bypass list - automatically passing score check`);
+                    }
 
                     // Merge rich user data from Neynar (contains wallet/verifications)
                     if (neynarData.user) {
